@@ -38,46 +38,96 @@
             </a>
           </div>
           
-          <!-- like form if picture is not liked by you so far -->
-          <form action="/create_like" method="post">
+          <!-- determine whether a photo is already liked by user or not -->
+          <% fans = photo.fans %> <!-- save array in variable for efficiency reasons -->
+          
+          <!-- if not liked yet -->
+          <% if fans.where(:id => current_user.id).count == 0 %>
+          
+            <!-- like form if picture is not liked by you so far -->
+            <form action="/create_like" method="post" class="pl-4">
+              
+              <!-- processing like -->
+              <input type="hidden" name="photo_id" value="<%=photo.id%>">
+              <input type="hidden" name="user_id" value="<%=current_user.id%>">
+              
+              <!-- nobody liked photo yet -->
+              <%if fans.count == 0%>
+                <small>be the first one to like this</small>
+              <!-- multiple users (>1) liked photo yet -->
+              <% elsif fans.count > 1 %>
+                <% position=0 %>
+                <%fans.each do |fan|%>
+                  <!-- add and to second to last entry -->
+                  <% if position == (fans.length - 2) %>
+                    <small><%=fan.username%> and </small>
+                  <!-- no addition to last entry -->
+                  <% elsif position == (fans.length - 1) %>
+                    <small><%=fan.username%></small>
+                  <!-- add comas to all other entries -->
+                  <% else %>
+                    <small><%=fan.username%>, </small>
+                  <% end %>
+                  <% position = position + 1 %>
+                <%end%>
+                <small> like this</small>
+              <!-- exactly one person liked photo so far -->
+              <%else%>
+                <small><%= fans[0].username%></small>
+                <small> likes this</small>
+              <% end %>
+              
+              <!-- like button -->
+              <button class="btn btn-link pull-right">
+                <i class="far fa-heart"></i>Like
+              </button>
+              
+            </form>
             
-            <!-- processing like -->
-            <input type="hidden" name="photo_id" value="<%=photo.id%>">
-            <input type="hidden" name="user_id" value="<%=current_user.id%>">
+          <% else %>
             
-            <% fans = photo.fans %> <!-- save array in variable for efficiency reasons -->
-            <!-- nobody liked photo yet -->
-            <%if fans.count == 0%>
-              <small>be the first one to like this</small>
-            <!-- multiple users (>1) liked photo yet -->
-            <% elsif fans.count > 1 %>
-              <% position=0 %>
-              <%fans.each do |fan|%>
-                <!-- add and to second to last entry -->
-                <% if position == (fans.length - 2) %>
-                  <small><%=fan.username%> and </small>
-                <!-- no addition to last entry -->
-                <% elsif position == (fans.length - 1) %>
-                  <small><%=fan.username%></small>
-                <!-- add comas to all other entries -->
-                <% else %>
-                  <small><%=fan.username%>, </small>
-                <% end %>
-                <% position = position + 1 %>
-              <%end%>
-              <small> like this</small>
-            <!-- exactly one person liked photo so far -->
-            <%else%>
-              <small><%= fans[0].username%></small>
-              <small> likes this</small>
-            <% end %>
+            <!-- user already liked photo -->
+            <form action="/delete_like/<%=Like.where(:user_id => current_user.id, :photo_id => photo.id)[0].id%>" class="pl-4">
+              
+              <!-- processing like -->
+              <input type="hidden" name="photo_id" value="<%=photo.id%>">
+              <input type="hidden" name="user_id" value="<%=current_user.id%>">
+              
+              <!-- nobody liked photo yet -->
+              <%if fans.count == 0%>
+                <small>be the first one to like this</small>
+              <!-- multiple users (>1) liked photo yet -->
+              <% elsif fans.count > 1 %>
+                <% position=0 %>
+                <%fans.each do |fan|%>
+                  <!-- add and to second to last entry -->
+                  <% if position == (fans.length - 2) %>
+                    <small><%=fan.username%> and </small>
+                  <!-- no addition to last entry -->
+                  <% elsif position == (fans.length - 1) %>
+                    <small><%=fan.username%></small>
+                  <!-- add comas to all other entries -->
+                  <% else %>
+                    <small><%=fan.username%>, </small>
+                  <% end %>
+                  <% position = position + 1 %>
+                <%end%>
+                <small> like this</small>
+              <!-- exactly one person liked photo so far -->
+              <%else%>
+                <small><%= fans[0].username%></small>
+                <small> likes this</small>
+              <% end %>
+              
+              <!-- like button -->
+              <button class="btn btn-link pull-right">
+                <i class="fas fa-heart"></i>Unlike
+              </button>
+              
+            </form>
             
-            <!-- like button -->
-            <button class="btn btn-link pull-right">
-              <i class="far fa-heart"></i>Like
-            </button>
+          <% end %>
             
-          </form>
         </div>
       <% end %>
       
