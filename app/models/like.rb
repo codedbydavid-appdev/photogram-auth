@@ -1,17 +1,19 @@
 # == Schema Information
 #
-# Table name: comments
+# Table name: likes
 #
 #  id         :integer          not null, primary key
-#  body       :text
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #  photo_id   :integer
 #  user_id    :integer
 #
 
-FactoryBot.define do
-  factory :comment do
-    body "this is a comment"
-  end
+class Like < ApplicationRecord
+    
+    validates :photo_id, :user_id, presence: true
+    
+    belongs_to :photo
+    belongs_to :user
+    
 end

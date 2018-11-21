@@ -1,0 +1,87 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+
+    </div>
+  </div>
+
+
+  <div class="row">
+    <div class="col-md-8 offset-md-2">
+      <a href="/photos/new" class="btn btn-primary btn-block">
+        <i class="fa fa-fw fa-plus"></i>
+        Add Photo
+      </a>
+      <hr>
+    </div>
+  </div>
+
+  <div class="row mb-5">
+    <div class="col-md-8 offset-md-2">
+      
+      <!-- photo title (posted by when) + photo -->
+      <% @photos.each do |photo| %>
+        <div class="card">
+          <div class="card-header">
+            <h4 class="card-title">
+              <a href="/users/<%=photo.user_id%>">
+                <%=photo.user.username%>
+              </a>
+              <small>
+                <%= time_ago_in_words(photo.created_at) %><%=%> ago
+              </small>
+            </h4>
+          </div>
+          <div class="card-body">
+            <a href="/photos/<%=photo.id%>">
+              <img src="<%=photo.image%>" class="img-fluid">
+            </a>
+          </div>
+          
+          <!-- like form if picture is not liked by you so far -->
+          <form action="/create_like" method="post">
+            
+            <!-- processing like -->
+            <input type="hidden" name="photo_id" value="<%=photo.id%>">
+            <input type="hidden" name="user_id" value="<%=current_user.id%>">
+            
+            <% fans = photo.fans %> <!-- save array in variable for efficiency reasons -->
+            <!-- nobody liked photo yet -->
+            <%if fans.count == 0%>
+              <small>be the first one to like this</small>
+            <!-- multiple users (>1) liked photo yet -->
+            <% elsif fans.count > 1 %>
+              <% position=0 %>
+              <%fans.each do |fan|%>
+                <!-- add and to second to last entry -->
+                <% if position == (fans.length - 2) %>
+                  <small><%=fan.username%> and </small>
+                <!-- no addition to last entry -->
+                <% elsif position == (fans.length - 1) %>
+                  <small><%=fan.username%></small>
+                <!-- add comas to all other entries -->
+                <% else %>
+                  <small><%=fan.username%>, </small>
+                <% end %>
+                <% position = position + 1 %>
+              <%end%>
+              <small> like this</small>
+            <!-- exactly one person liked photo so far -->
+            <%else%>
+              <small><%= fans[0].username%></small>
+              <small> likes this</small>
+            <% end %>
+            
+            <!-- like button -->
+            <button class="btn btn-link pull-right">
+              <i class="far fa-heart"></i>Like
+            </button>
+            
+          </form>
+        </div>
+      <% end %>
+      
+    </div>
+  </div>
+
+</div>
