@@ -13,6 +13,7 @@
 class Comment < ApplicationRecord
     
     validates :photo_id, :user_id, presence: true
+    validates :body, presence: true
     
     belongs_to :photo
     belongs_to :user
