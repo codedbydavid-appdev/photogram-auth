@@ -27,9 +27,9 @@ class PhotosController < ApplicationController
     if @photo.valid?
       @photo.save
 
-      redirect_back(:fallback_location => "/photos", :notice => "Photo created successfully.")
+      redirect_to("/photos", :notice => "Photo created successfully.")
     else
-      render("photo_templates/new_form_with_errors.html.erb")
+      render("photo_templates/new_form.html.erb")
     end
   end
 
@@ -51,7 +51,7 @@ class PhotosController < ApplicationController
 
       redirect_to("/photos/#{@photo.id}", :notice => "Photo updated successfully.")
     else
-      render("photo_templates/edit_form_with_errors.html.erb")
+      render("photo_templates/edit_form.html.erb")
     end
   end
 

@@ -2,6 +2,10 @@ Rails.application.routes.draw do
   
   devise_for :users
   # Routes for the Comment resource:
+  
+  # extra links for users
+  get("/users", { :controller => "users", :action => "index"})
+  get("/users/:id_to_display", { :controller => "users", :action => "show"})
 
   # CREATE
   get("/comments/new", { :controller => "comments", :action => "new_form" })

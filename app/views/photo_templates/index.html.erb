@@ -17,7 +17,7 @@
   </div>
 
   <!-- looping through each photo -->
-  <% @photos.each do |photo| %>
+  <% @photos.reverse_each do |photo| %>
   
     <div class="row mb-5">
       <div class="col-md-8 offset-md-2">
@@ -126,22 +126,25 @@
           
           <!-- caption + comments-->
           <ul class="list-unstyled pl-4 pr-4 pt-2">
-            <!-- caption-->
-            <li class="media mb-2">
-              <div class="media-body">
-                <h6>
-                  <a href="/users/<%=photo.user_id%>">
-                    <%= User.find(photo.user_id).username %>
-                  </a> 
-                  <small>
-                    <%= time_ago_in_words(photo.created_at) %> ago
-                  </small>
-                </h6>
-                <%= photo.caption %>
-              </div>
-            </li>
+            <!-- only do caption part when there is a caption-->
+            <% if photo.caption != "" %>
+              <!-- caption-->
+              <li class="media mb-2">
+                <div class="media-body">
+                  <h6>
+                    <a href="/users/<%=photo.user_id%>">
+                      <%= User.find(photo.user_id).username %>
+                    </a> 
+                    <small>
+                      <%= time_ago_in_words(photo.created_at) %> ago
+                    </small>
+                  </h6>
+                  <%= photo.caption %>
+                </div>
+              </li>
+              <hr>
+            <% end %>
             <!-- comments-->
-            <hr>
             <% photo.comments.each do |comment|%>
               <li class="media mb-2">
                 <div class="media-body">
@@ -182,6 +185,20 @@
                 </form>
               </div> <!-- media-body -->
             </li>
+            
+            <% if photo.user_id == current_user.id%>
+            
+            <div class="btn-group d-flex" role="group">
+                <a href="/photos/<%=photo.id%>/edit" class="btn btn-warning w-100">
+                  <i class="fas fa-edit"></i>
+                  Edit
+                </a>
+                <a href="/delete_photo/<%=photo.id%>" class="btn btn-danger w-100" rel="nofollow">
+                  <i class="fas fa-trash"></i>
+                  Delete
+                </a>
+              </div>
+            <% end%>
             
           </ul>
             
