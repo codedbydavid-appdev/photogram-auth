@@ -1,0 +1,218 @@
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+        </div> <!-- column -->
+    </div> <!-- row -->
+    
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="jumbotron">
+                <h3><%=@user.username%></h3>
+            </div>
+        </div>
+    </div>
+    
+    <% if @user.id == current_user.id %>
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+              <a href="/photos/new" class="btn btn-primary btn-block">
+                <i class="fa fa-fw fa-plus"></i>
+                Add Photo
+              </a>
+              <hr>
+            </div>
+        </div>
+    <% end %>
+    
+    <% User.find(@user.id).photos.reverse_each do |photo| %>
+  
+        <div class="row mb-5">
+          <div class="col-md-8 offset-md-2">
+            <div class="card">
+              <div class="card-header">
+                <h4 class="card-title">
+                  <a href="/users/<%=photo.user_id%>">
+                    <%=photo.user.username%>
+                  </a>
+                  <small>
+                    <%= time_ago_in_words(photo.created_at) %><%=%> ago
+                  </small>
+                </h4>
+              </div>
+              <div class="card-body">
+                <a href="/photos/<%=photo.id%>">
+                  <img src="<%=photo.image%>" class="img-fluid">
+                </a>
+              </div>
+              
+              <!-- determine whether a photo is already liked by user or not -->
+              <% fans = photo.fans %> <!-- save array in variable for efficiency reasons -->
+              
+              <!-- if not liked yet -->
+              <% if fans.where(:id => current_user.id).count == 0 %>
+              
+                <!-- like form if picture is not liked by you so far -->
+                <form action="/create_like" method="post" class="pl-4">
+                  
+                  <!-- processing like -->
+                  <input type="hidden" name="photo_id" value="<%=photo.id%>">
+                  <input type="hidden" name="user_id" value="<%=current_user.id%>">
+                  
+                  <!-- nobody liked photo yet -->
+                  <%if fans.count == 0%>
+                    <small>be the first one to like this</small>
+                  <!-- multiple users (>1) liked photo yet -->
+                  <% elsif fans.count > 1 %>
+                    <% position=0 %>
+                    <%fans.each do |fan|%>
+                      <!-- add and to second to last entry -->
+                      <% if position == (fans.length - 2) %>
+                        <small><%=fan.username%> and </small>
+                      <!-- no addition to last entry -->
+                      <% elsif position == (fans.length - 1) %>
+                        <small><%=fan.username%></small>
+                      <!-- add comas to all other entries -->
+                      <% else %>
+                        <small><%=fan.username%>, </small>
+                      <% end %>
+                      <% position = position + 1 %>
+                    <%end%>
+                    <small> like this</small>
+                  <!-- exactly one person liked photo so far -->
+                  <%else%>
+                    <small><%= fans[0].username%></small>
+                    <small> likes this</small>
+                  <% end %>
+                  
+                  <!-- like button -->
+                  <button class="btn btn-link pull-right">
+                    <i class="far fa-heart"></i>Like
+                  </button>
+                  
+                </form>
+                
+              <% else %>
+                
+                <!-- user already liked photo -->
+                <form action="/delete_like/<%=Like.where(:user_id => current_user.id, :photo_id => photo.id)[0].id%>" class="pl-4">
+                  
+                  <!-- nobody liked photo yet -->
+                  <%if fans.count == 0%>
+                    <small>be the first one to like this</small>
+                  <!-- multiple users (>1) liked photo yet -->
+                  <% elsif fans.count > 1 %>
+                    <% position=0 %>
+                    <%fans.each do |fan|%>
+                      <!-- add and to second to last entry -->
+                      <% if position == (fans.length - 2) %>
+                        <small><%=fan.username%> and </small>
+                      <!-- no addition to last entry -->
+                      <% elsif position == (fans.length - 1) %>
+                        <small><%=fan.username%></small>
+                      <!-- add comas to all other entries -->
+                      <% else %>
+                        <small><%=fan.username%>, </small>
+                      <% end %>
+                      <% position = position + 1 %>
+                    <%end%>
+                    <small> like this</small>
+                  <!-- exactly one person liked photo so far -->
+                  <%else%>
+                    <small><%= fans[0].username%></small>
+                    <small> likes this</small>
+                  <% end %>
+                  
+                  <!-- like button -->
+                  <button class="btn btn-link pull-right">
+                    <i class="fas fa-heart"></i>Unlike
+                  </button>
+                  
+                </form>
+                
+              <% end %>
+              
+              <!-- caption + comments-->
+              <ul class="list-unstyled pl-4 pr-4 pt-2">
+                <!-- only do caption part when there is a caption-->
+                <% if photo.caption != "" %>
+                  <!-- caption-->
+                  <li class="media mb-2">
+                    <div class="media-body">
+                      <h6>
+                        <a href="/users/<%=photo.user_id%>">
+                          <%= User.find(photo.user_id).username %>
+                        </a> 
+                        <small>
+                          <%= time_ago_in_words(photo.created_at) %> ago
+                        </small>
+                      </h6>
+                      <%= photo.caption %>
+                    </div>
+                  </li>
+                  <hr>
+                <% end %>
+                <!-- comments-->
+                <% photo.comments.each do |comment|%>
+                  <li class="media mb-2">
+                    <div class="media-body">
+                      <h6>
+                        <a href="/users/<%=comment.user_id%>">
+                          <%=User.find(comment.user_id).username%>
+                        </a>
+                        <small>
+                          <%= time_ago_in_words(comment.created_at) %> ago
+                        </small>
+                      </h6>
+                      <%=comment.body%>
+                    </div>
+                  </li>
+                <% end%>
+              
+                <!-- adding a comment-->
+                <li class="media">
+                  <div class="media-body">
+                    <form action="/create_comment" method="post" class="pt-4">
+                      <input type="hidden" name="user_id" value="<%=current_user.id%>">
+                      <input type="hidden" name="photo_id" value="<%=photo.id%>">
+                      
+                      <div class="form-group">
+                        <label for="body" class="sr-only">
+                          Body
+                        </label>
+                        <div class="input-group">
+                          <input type="text" id="body" name="body" class="form-control" placeholder="Add a comment..." required>
+                          <span class="input-group-append">
+                            <button class="btn btn-primary" type="submit">
+                              <i class="far fa-comment"></i>
+                              Add Comment
+                            </button>
+                          </span>
+                        </div> <!-- input-group -->
+                      </div> <!-- form-group -->
+                    </form>
+                  </div> <!-- media-body -->
+                </li>
+                
+    
+                <% if @user.id == current_user.id %>
+                    <div class="btn-group d-flex" role="group">
+                        <a href="/photos/<%=photo.id%>/edit" class="btn btn-warning w-100">
+                          <i class="fas fa-edit"></i>
+                          Edit
+                        </a>
+                        <a href="/delete_photo/<%=photo.id%>" class="btn btn-danger w-100" rel="nofollow">
+                          <i class="fas fa-trash"></i>
+                          Delete
+                        </a>
+                    </div>
+                <% end %>
+                
+              </ul>
+                
+            </div>
+          </div>
+        </div>
+    
+  <% end %>
+  
+</div>

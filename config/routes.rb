@@ -6,6 +6,9 @@ Rails.application.routes.draw do
   # extra links for users
   get("/users", { :controller => "users", :action => "index"})
   get("/users/:id_to_display", { :controller => "users", :action => "show"})
+  get("my_likes", { :controller => "users", :action => "likes"})
+  
+  #------------------------------
 
   # CREATE
   get("/comments/new", { :controller => "comments", :action => "new_form" })
